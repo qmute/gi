@@ -6,12 +6,20 @@ import (
 	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
+	log "github.com/sirupsen/logrus"
 )
 
 type GinOption func(*gin.Engine)
 
 // New 创建 gin.Engine, 可指定多个Option
 func New(opt ...GinOption) *gin.Engine {
+	binding.Validator = new(defaultValidator)
+
+	if err := initTrans(ZH); err != nil {
+		log.WithError(err).Errorln("init trans failed")
+	}
+
 	if !gin.IsDebugging() {
 		gin.DisableConsoleColor()
 	}
@@ -25,8 +33,12 @@ func New(opt ...GinOption) *gin.Engine {
 // WithCookieSession CookieSession middleware
 // name, cookie name.
 // salt, cookie store secret
-func WithCookieSession(name, salt string) GinOption {
+// opt, optional session option
+func WithCookieSession(name, salt string, opt ...sessions.Options) GinOption {
 	store := cookie.NewStore([]byte(salt))
+	if len(opt) > 0 {
+		store.Options(opt[0])
+	}
 	return With(sessions.Sessions(name, store))
 }
 

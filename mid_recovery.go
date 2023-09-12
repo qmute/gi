@@ -3,8 +3,8 @@ package gi
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
 	"net/http/httputil"
+	"os"
 	"runtime"
 
 	"github.com/gin-gonic/gin"
@@ -19,7 +19,9 @@ var (
 )
 
 // MidRecovery 防止panic
-var MidRecovery = (&ginRecovery{}).Recovery
+func MidRecovery() gin.HandlerFunc {
+	return (&ginRecovery{}).Recovery
+}
 
 type ginRecovery struct {
 }
@@ -30,9 +32,15 @@ func (p *ginRecovery) Recovery(c *gin.Context) {
 		if err := recover(); err != nil {
 			stack := p.stack(3)
 			req, _ := httputil.DumpRequest(c.Request, false)
-			log.WithField("err", fmt.Sprintf("%+v", err)).WithField("req", string(req)).WithField(
-				"stack", string(stack)).Errorln("panic recovered")
-			fmt.Printf("%+v", err)
+			log.WithField("err", fmt.Sprintf("%+v", err)).
+				WithField("req", string(req)).
+				WithField("stack", string(stack)).
+				WithField("ip", c.ClientIP()).
+				Errorln("panic recovered", err)
+			if gin.Mode() == gin.DebugMode {
+				fmt.Println("panic recovered", err)
+				fmt.Println(string(stack))
+			}
 			c.AbortWithStatus(500)
 		}
 	}()
@@ -55,7 +63,7 @@ func (p *ginRecovery) stack(skip int) []byte {
 		// Print this much at least.  If we can't find the source, it won't show.
 		fmt.Fprintf(buf, "%s:%d (0x%x)\n", file, line, pc)
 		if file != lastFile {
-			data, err := ioutil.ReadFile(file)
+			data, err := os.ReadFile(file)
 			if err != nil {
 				continue
 			}
