@@ -41,7 +41,7 @@ func LogWithField(name string, getter FieldGetter) LogOpt {
 	}
 }
 
-// MidLogger 出错时打印日志
+// MidLogger 打印日志
 func MidLogger(opt ...LogOpt) gin.HandlerFunc {
 	config := &logConfig{}
 	for _, v := range opt {
