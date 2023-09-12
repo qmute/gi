@@ -34,6 +34,19 @@ func (p *BaseHdl) Copy(toValue interface{}, fromValue interface{}) error {
 	return nil
 }
 
+func (p *BaseHdl) ParseIntQuery(c *gin.Context, key string) (int, bool) {
+	s := c.Query(key)
+	i, err := strconv.Atoi(s)
+	if err != nil {
+		log.WithField("key", key).WithField("value", s).Errorln("bad int query")
+		c.String(http.StatusBadRequest, "参数错误")
+		c.Abort()
+		return 0, false
+	}
+
+	return i, true
+}
+
 func (p *BaseHdl) HandleError(c *gin.Context, err error, lgs ...*log.Entry) bool {
 	return HandleError(c, err, lgs...)
 }

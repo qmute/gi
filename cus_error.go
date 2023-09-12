@@ -13,15 +13,21 @@ import (
 )
 
 const (
+	ErrCodeOk           ErrCode = 0
 	ErrCodeNotModified  ErrCode = 304
 	ErrCodeBadReq       ErrCode = 400
 	ErrCodeUnauthorized ErrCode = 401
 	ErrCodeForbidden    ErrCode = 403
 	ErrCodeNotFound     ErrCode = 404
 	ErrCodeInternalErr  ErrCode = 500
+	ErrCodePanicErr     ErrCode = 590 // internal error, but panic error
 )
 
 type ErrCode int
+
+func (p ErrCode) IsOk() bool {
+	return p == ErrCodeOk
+}
 
 type CusError struct {
 	code    ErrCode
@@ -96,6 +102,10 @@ func WrapInternalCusError(err error, msg string, contexts ...utee.J) error {
 	return WrapCusErr(ErrCodeInternalErr, err, msg, contexts...)
 }
 
+func WrapPanicCusError(err error, msg string, contexts ...utee.J) error {
+	return WrapCusErr(ErrCodePanicErr, err, msg, contexts...)
+}
+
 func IsCusError(err error) (*CusError, bool) {
 	if err == nil {
 		return nil, false
@@ -107,6 +117,18 @@ func IsCusError(err error) (*CusError, bool) {
 	}
 
 	return e, true
+}
+
+func GetErrorMsg(err error) string {
+	if err == nil {
+		return ""
+	}
+
+	if e, ok := IsCusError(err); ok {
+		return e.Msg()
+	}
+
+	return err.Error()
 }
 
 func HandleError(c *gin.Context, err error, lgs ...*log.Entry) bool {
