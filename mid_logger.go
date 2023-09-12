@@ -5,11 +5,13 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/gin-contrib/requestid"
 	"github.com/gin-gonic/gin"
 	"github.com/quexer/utee"
+	"github.com/samber/lo"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -23,9 +25,19 @@ type logConfig struct {
 	Threshold time.Duration
 
 	FieldGetter map[string]FieldGetter
+
+	IgnoreStaticMedia bool // 是否忽略静态资源
 }
 
-// LogWithThreshold 设置日志打印时限，超过时限才打印日志
+// LogWithIgnoreStaticMedia 是否忽略静态资源，默认为true，忽略
+// 静态资源由常见的后缀判断：.css, .js, .html, .png, .gif, .jpg, .jpeg, .ico
+func LogWithIgnoreStaticMedia(ignore bool) LogOpt {
+	return func(opt *logConfig) {
+		opt.IgnoreStaticMedia = ignore
+	}
+}
+
+// LogWithThreshold 设置日志打印时限，超过时限才打印日志. 默认为0，即不限制
 func LogWithThreshold(threshold time.Duration) LogOpt {
 	return func(opt *logConfig) {
 		opt.Threshold = threshold
@@ -44,8 +56,9 @@ func LogWithField(name string, getter FieldGetter) LogOpt {
 // MidLogger 打印日志
 func MidLogger(opt ...LogOpt) gin.HandlerFunc {
 	config := &logConfig{
-		Threshold:   0,
-		FieldGetter: map[string]FieldGetter{},
+		Threshold:         0,
+		FieldGetter:       map[string]FieldGetter{},
+		IgnoreStaticMedia: true,
 	}
 	for _, v := range opt {
 		v(config)
@@ -53,6 +66,10 @@ func MidLogger(opt ...LogOpt) gin.HandlerFunc {
 
 	return func(c *gin.Context) {
 		path := c.Request.URL.Path
+
+		if config.IgnoreStaticMedia && ignorePath(path) {
+			return
+		}
 
 		buf, err := io.ReadAll(c.Request.Body)
 		utee.Chk(err)
@@ -104,4 +121,14 @@ func MidLogger(opt ...LogOpt) gin.HandlerFunc {
 			entry.Infoln(statusCode)
 		}
 	}
+}
+
+// 要忽略的静态资源后缀
+var ignoreFileExtension = []string{".css", ".js", ".html", ".png", ".gif", ".jpg", ".jpeg", ".ico"}
+
+func ignorePath(path string) bool {
+	fn := func(x string) bool {
+		return strings.HasSuffix(path, x)
+	}
+	return lo.SomeBy(ignoreFileExtension, fn)
 }
