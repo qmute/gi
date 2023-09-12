@@ -9,9 +9,14 @@
 ```
 router := gi.New(
     gi.WithPprof(),
-    gi.With(gi.MidRecovery),
-    gi.With(gi.MidLogger),
-    gi.With(MidHSTS),
+    gi.With(gi.MidHSTS()),
+    ...
+)
+
+router.Use(
+    gi.MidCORS(),
+    gi.MidRecovery(),
+    gi.MidLogger(gi.LogWithThreshold(200*time.Millisecond)),
     ...
 )
 
