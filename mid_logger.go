@@ -43,7 +43,10 @@ func LogWithField(name string, getter FieldGetter) LogOpt {
 
 // MidLogger 打印日志
 func MidLogger(opt ...LogOpt) gin.HandlerFunc {
-	config := &logConfig{}
+	config := &logConfig{
+		Threshold:   0,
+		FieldGetter: map[string]FieldGetter{},
+	}
 	for _, v := range opt {
 		v(config)
 	}
