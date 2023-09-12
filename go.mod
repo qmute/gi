@@ -1,6 +1,6 @@
 module gitlab.51baibao.com/server/gi
 
-go 1.21.1
+go 1.21
 
 require (
 	github.com/gin-contrib/pprof v1.4.0

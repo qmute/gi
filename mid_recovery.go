@@ -1,8 +1,4 @@
-// Copyright 2014 Manu Martinez-Almeida.  All rights reserved.
-// Type of this source code is governed by a MIT style
-// license that can be found in the LICENSE file.
-
-package internal
+package gi
 
 import (
 	"bytes"
@@ -22,28 +18,29 @@ var (
 	slash     = []byte("/")
 )
 
-type GinRecovery struct {
+// MidRecovery 防止panic
+var MidRecovery = (&ginRecovery{}).Recovery
+
+type ginRecovery struct {
 }
 
 // Recovery returns a middleware that recovers from any panics and writes a 500 if there was one.
-func (p *GinRecovery) Recovery() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		defer func() {
-			if err := recover(); err != nil {
-				stack := p.stack(3)
-				req, _ := httputil.DumpRequest(c.Request, false)
-				log.WithField("err", fmt.Sprintf("%+v", err)).WithField("req", string(req)).WithField(
-					"stack", string(stack)).Errorln("panic recovered")
-				fmt.Printf("%+v", err)
-				c.AbortWithStatus(500)
-			}
-		}()
-		c.Next()
-	}
+func (p *ginRecovery) Recovery(c *gin.Context) {
+	defer func() {
+		if err := recover(); err != nil {
+			stack := p.stack(3)
+			req, _ := httputil.DumpRequest(c.Request, false)
+			log.WithField("err", fmt.Sprintf("%+v", err)).WithField("req", string(req)).WithField(
+				"stack", string(stack)).Errorln("panic recovered")
+			fmt.Printf("%+v", err)
+			c.AbortWithStatus(500)
+		}
+	}()
+	c.Next()
 }
 
 // stack returns a nicely formated stack frame, skipping skip frames
-func (p *GinRecovery) stack(skip int) []byte {
+func (p *ginRecovery) stack(skip int) []byte {
 	buf := new(bytes.Buffer) // the returned data
 	// As we loop, we open files and read them. These variables record the currently
 	// loaded file.
@@ -71,7 +68,7 @@ func (p *GinRecovery) stack(skip int) []byte {
 }
 
 // source returns a space-trimmed slice of the n'th line.
-func (p *GinRecovery) source(lines [][]byte, n int) []byte {
+func (p *ginRecovery) source(lines [][]byte, n int) []byte {
 	n-- // in stack trace, lines are 1-indexed but our array is 0-indexed
 	if n < 0 || n >= len(lines) {
 		return dunno
@@ -80,7 +77,7 @@ func (p *GinRecovery) source(lines [][]byte, n int) []byte {
 }
 
 // function returns, if possible, the name of the function containing the PC.
-func (p *GinRecovery) function(pc uintptr) []byte {
+func (p *ginRecovery) function(pc uintptr) []byte {
 	fn := runtime.FuncForPC(pc)
 	if fn == nil {
 		return dunno

@@ -1,8 +1,6 @@
 package gi
 
 import (
-	"gitlab.51baibao.com/server/gi/internal"
-
 	"github.com/gin-contrib/pprof"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
@@ -22,17 +20,6 @@ func New(opt ...GinOption) *gin.Engine {
 		v(r)
 	}
 	return r
-}
-
-// WithRecovery 防止panic
-func WithRecovery() GinOption {
-	recovery := &internal.GinRecovery{}
-	return With(recovery.Recovery())
-}
-
-// WithLogger 出错时打打日志
-func WithLogger() GinOption {
-	return With(internal.Logger())
 }
 
 // WithCookieSession CookieSession middleware
@@ -56,21 +43,6 @@ func WithStatic(fileRoot ...string) GinOption {
 func WithPprof() GinOption {
 	return func(router *gin.Engine) {
 		pprof.Register(router)
-	}
-}
-
-// WithHSTS 强制使用https
-// 详见 https://zh.wikipedia.org/wiki/HTTP%E4%B8%A5%E6%A0%BC%E4%BC%A0%E8%BE%93%E5%AE%89%E5%85%A8
-func WithHSTS() GinOption {
-	return func(router *gin.Engine) {
-		router.Use(internal.MidHSTS)
-	}
-}
-
-// WithCors 允许 CORS
-func WithCors() GinOption {
-	return func(router *gin.Engine) {
-		router.Use(internal.MidCors)
 	}
 }
 
