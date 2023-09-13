@@ -21,6 +21,7 @@ type LogOpt func(opt *logConfig)
 // FieldGetter 从 gin.Context 中获取内容的函数
 type FieldGetter func(r *http.Request) any
 
+// 日志配置
 type logConfig struct {
 	Threshold time.Duration
 
@@ -53,7 +54,7 @@ func LogWithField(name string, getter FieldGetter) LogOpt {
 	}
 }
 
-// MidLogger 打印日志
+// MidLogger 打印日志，支持 LogOpt 对日志进行配置
 func MidLogger(opt ...LogOpt) gin.HandlerFunc {
 	config := &logConfig{
 		Threshold:         0,
@@ -127,6 +128,7 @@ func MidLogger(opt ...LogOpt) gin.HandlerFunc {
 var ignoreFileExtension = []string{".css", ".js", ".html", ".png", ".gif", ".jpg", ".jpeg", ".ico"}
 
 func ignorePath(path string) bool {
+	// todo 测试性能，必要时改进
 	fn := func(x string) bool {
 		return strings.HasSuffix(path, x)
 	}

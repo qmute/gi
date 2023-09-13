@@ -86,6 +86,10 @@ func WrapCusErr(code ErrCode, e error, msg string, contexts ...utee.J) error {
 	return err
 }
 
+func WrapNotModifiedCusError(err error, msg string, contexts ...utee.J) error {
+	return WrapCusErr(ErrCodeNotModified, err, msg, contexts...)
+}
+
 func WrapBadRequestCusError(err error, msg string, contexts ...utee.J) error {
 	return WrapCusErr(ErrCodeBadReq, err, msg, contexts...)
 }

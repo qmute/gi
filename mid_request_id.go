@@ -5,8 +5,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// RequestId request id middleware
-var RequestId = requestid.New
+// MidRequestId request id middleware
+var MidRequestId = requestid.New
 
 // GetRequestId get request id from context
 func GetRequestId(c *gin.Context) string {

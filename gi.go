@@ -35,7 +35,7 @@ func WithStatic(fileRoot ...string) GinOption {
 	if len(fileRoot) > 0 {
 		root = fileRoot[0]
 	}
-	return With(static.Serve("/", static.LocalFile(root, true)))
+	return with(static.Serve("/", static.LocalFile(root, true)))
 }
 
 // WithPprof 启用pprof
@@ -46,7 +46,7 @@ func WithPprof() GinOption {
 }
 
 // With 使用任意middleware
-func With(fn gin.HandlerFunc) GinOption {
+func with(fn gin.HandlerFunc) GinOption {
 	return func(r *gin.Engine) {
 		r.Use(fn)
 	}
