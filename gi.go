@@ -28,13 +28,14 @@ func New(opt ...GinOption) *gin.Engine {
 	return r
 }
 
-// WithStatic 服务静态文件，fileRoot 本地文件路径，默认为 ./public
+// WithStatic 服务静态文件，fileRoot 本地文件路径，默认文件为 ./public
+// 对于目录，自动索引
 func WithStatic(fileRoot ...string) GinOption {
 	root := "./public"
 	if len(fileRoot) > 0 {
 		root = fileRoot[0]
 	}
-	return With(static.ServeRoot("/", root))
+	return With(static.Serve("/", static.LocalFile(root, true)))
 }
 
 // WithPprof 启用pprof
