@@ -28,10 +28,10 @@ func StaticWithFileRoot(fileRoot string) StaticOption {
 	}
 }
 
-// StaticWithIndex 是否自动索引，默认为 false
-func StaticWithIndex(index bool) StaticOption {
+// StaticWithoutIndex 禁用自动索引
+func StaticWithoutIndex() StaticOption {
 	return func(cfg *staticConfig) {
-		cfg.index = index
+		cfg.index = false
 	}
 }
 
@@ -40,7 +40,7 @@ func Static(opt ...StaticOption) gin.HandlerFunc {
 	cfg := &staticConfig{
 		urlPrefix: "/",
 		fileRoot:  "./public",
-		index:     false,
+		index:     true,
 	}
 	for _, v := range opt {
 		v(cfg)

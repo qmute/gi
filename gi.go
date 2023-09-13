@@ -29,9 +29,9 @@ func New(opt ...GinOption) *gin.Engine {
 
 // WithStatic 服务静态文件
 // 默认url前缀为 /，本地文件路径为 ./public，自动索引
-// 如果需要自定义 ，可使用 gi.Static middleware
+// 如果需要自定义 ，可使用 gi.Static middleware 配合 gi.StaticWithXxxOption 使用
 func WithStatic() GinOption {
-	return with(Static(StaticWithIndex(true)))
+	return with(Static())
 }
 
 // WithPprof 启用pprof

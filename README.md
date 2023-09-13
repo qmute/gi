@@ -5,16 +5,15 @@
 - 不能直接使用的封装成 [Functional Option](https://dave.cheney.net/2014/10/17/functional-options-for-friendly-apis)
 
 ```
-router := gi.New(
-    gi.WithPprof(),
-    ...
-)
+    router := gi.New(
+        gi.WithPprof(),
+    )
 
-router.Use(
-    gi.MidCORS(),
-    gi.MidRecovery(),
-    gi.MidLogger(gi.LogWithThreshold(200*time.Millisecond)),
-    ...
-)
+    router.Use(
+        gi.MidCORS(),
+        gi.MidRecovery(),
+        gi.MidLogger(),
+        gi.MidStatic(),
+    )
 
 ```
