@@ -23,11 +23,20 @@ type FieldGetter func(r *http.Request) any
 
 // 日志配置
 type logConfig struct {
-	Threshold time.Duration
+	Threshold time.Duration // 如果非0，则超过此时限才打印日志
 
-	FieldGetter map[string]FieldGetter
+	FieldGetter map[string]FieldGetter // 为日志增加字段
 
-	IgnoreStaticMedia bool // 是否忽略静态资源
+	IgnoreStaticMedia bool // 是否忽略静态资源, 默认为true，忽略
+
+	IgnoreFn func(r *http.Request) bool // 满足此条件的忽略日志
+}
+
+// LogWithIgnore 提交自定义忽略日志的函数
+func LogWithIgnore(fn func(r *http.Request) bool) LogOpt {
+	return func(opt *logConfig) {
+		opt.IgnoreFn = fn
+	}
 }
 
 // LogWithIgnoreStaticMedia 是否忽略静态资源，默认为true，忽略
@@ -68,7 +77,12 @@ func MidLogger(opt ...LogOpt) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		path := c.Request.URL.Path
 
+		// 忽略静态
 		if config.IgnoreStaticMedia && ignorePath(path) {
+			return
+		}
+		// 自定义忽略
+		if config.IgnoreFn != nil && config.IgnoreFn(c.Request) {
 			return
 		}
 
@@ -87,7 +101,7 @@ func MidLogger(opt ...LogOpt) gin.HandlerFunc {
 		}
 
 		statusCode := c.Writer.Status()
-		comment := c.Errors.ByType(gin.ErrorTypePrivate).String()
+		errStr := c.Errors.ByType(gin.ErrorTypePrivate).String()
 
 		entry := log.WithField("mod", "gin").
 			WithField("latency", latency.String()).
@@ -102,8 +116,8 @@ func MidLogger(opt ...LogOpt) gin.HandlerFunc {
 			entry = entry.WithField(k, v(c.Request))
 		}
 
-		if comment != "" {
-			entry = entry.WithField("err", comment)
+		if errStr != "" {
+			entry = entry.WithField("err", errStr)
 		}
 
 		if statusCode != http.StatusOK && statusCode != http.StatusNotModified {
