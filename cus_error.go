@@ -29,6 +29,10 @@ func (p ErrCode) IsOk() bool {
 	return p == ErrCodeOk
 }
 
+func (p ErrCode) Value() int {
+	return int(p)
+}
+
 type CusError struct {
 	code    ErrCode
 	msg     string
