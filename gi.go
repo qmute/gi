@@ -2,7 +2,6 @@ package gi
 
 import (
 	"github.com/gin-contrib/pprof"
-	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	log "github.com/sirupsen/logrus"
@@ -28,14 +27,11 @@ func New(opt ...GinOption) *gin.Engine {
 	return r
 }
 
-// WithStatic 服务静态文件，fileRoot 本地文件路径，默认文件为 ./public
-// 对于目录，自动索引
-func WithStatic(fileRoot ...string) GinOption {
-	root := "./public"
-	if len(fileRoot) > 0 {
-		root = fileRoot[0]
-	}
-	return with(static.Serve("/", static.LocalFile(root, true)))
+// WithStatic 服务静态文件
+// 默认url前缀为 /，本地文件路径为 ./public，自动索引
+// 如果需要自定义 ，可使用 gi.Static middleware
+func WithStatic() GinOption {
+	return with(Static(StaticWithIndex(true)))
 }
 
 // WithPprof 启用pprof
