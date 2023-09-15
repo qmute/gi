@@ -40,5 +40,14 @@ func NewReverseProxyHandler(target *url.URL) gin.HandlerFunc {
 			_, _ = w.Write([]byte("not found"))
 		},
 	}
-	return gin.WrapH(proxy)
+
+	return func(c *gin.Context) {
+		defer func() {
+			if err := recover(); err != nil {
+				logrus.Errorln("proxy err", err)
+				c.AbortWithStatus(http.StatusServiceUnavailable) // 当作临时不可用
+			}
+		}()
+		proxy.ServeHTTP(c.Writer, c.Request)
+	}
 }
