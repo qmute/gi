@@ -10,7 +10,6 @@ import (
 
 	"github.com/gin-contrib/requestid"
 	"github.com/gin-gonic/gin"
-	"github.com/quexer/utee"
 	"github.com/samber/lo"
 	log "github.com/sirupsen/logrus"
 )
@@ -87,7 +86,11 @@ func MidLogger(opt ...LogOpt) gin.HandlerFunc {
 		}
 
 		buf, err := io.ReadAll(c.Request.Body)
-		utee.Chk(err)
+		if err != nil {
+			// 出错时，将body置空并返回，logger 永远不该panic
+			c.Request.Body = io.NopCloser(bytes.NewBuffer([]byte{}))
+			return
+		}
 		bodyCopyReader := io.NopCloser(bytes.NewBuffer(buf))
 		c.Request.Body = io.NopCloser(bytes.NewBuffer(buf))
 
