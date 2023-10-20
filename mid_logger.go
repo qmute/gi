@@ -127,10 +127,9 @@ func MidLogger(opt ...LogOpt) gin.HandlerFunc {
 			buf := new(bytes.Buffer)
 			if _, err := buf.ReadFrom(bodyCopyReader); err != nil {
 				errEntry(err, entry).Errorln("mid error")
-			} else {
-				entry = entry.WithField("body", buf.String()).WithField("query", c.Request.URL.RawQuery)
 			}
 
+			entry.WithField("body", buf.String()).WithField("query", c.Request.URL.RawQuery).Warnln(statusCode)
 			return
 		}
 
