@@ -41,10 +41,19 @@ type CusError struct {
 }
 
 func (p *CusError) Error() string {
-	if p.err != nil {
-		return fmt.Sprintf("%s:%+v:%+v", p.msg, p.context, p.err)
+	if p.err == nil {
+		if p.context == nil {
+			return p.msg
+		}
+
+		return fmt.Sprintf("%s:%+v", p.msg, p.context)
 	}
-	return p.msg
+
+	if p.context == nil {
+		return fmt.Sprintf("%s:%+v", p.msg, p.err)
+	}
+
+	return fmt.Sprintf("%s:%+v:%+v", p.msg, p.context, p.err)
 }
 
 func (e *CusError) Unwrap() error {
