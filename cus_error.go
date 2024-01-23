@@ -185,9 +185,9 @@ func HandleError(c *gin.Context, err error, lgs ...*log.Entry) bool {
 
 	outMsg := func() string {
 		if ce.Code() >= 500 {
-			return "panic " + ce.Msg()
+			return "panic " + ce.Error()
 		} else {
-			return ce.Msg()
+			return ce.Error()
 		}
 	}
 
