@@ -113,7 +113,8 @@ func MidLogger(opt ...LogOpt) gin.HandlerFunc {
 			WithField("path", path).
 			WithField("lat", fmt.Sprintf("%.2f", float64(latency.Nanoseconds())/1e6)). // 单位为毫秒
 			WithField("ua", c.Request.Header.Get("user-agent")).
-			WithField("requestId", requestid.Get(c))
+			WithField("requestId", requestid.Get(c)).
+			WithField("header", c.Request.Header)
 
 		for k, v := range config.FieldGetter {
 			entry = entry.WithField(k, v(c.Request))
