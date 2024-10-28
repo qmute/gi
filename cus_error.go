@@ -8,7 +8,6 @@ import (
 	"github.com/pkg/errors"
 	"github.com/quexer/utee"
 	log "github.com/sirupsen/logrus"
-	micErr "go-micro.dev/v4/errors"
 	"gorm.io/gorm"
 )
 
@@ -162,11 +161,6 @@ func HandleError(c *gin.Context, err error, lgs ...*log.Entry) bool {
 	// 测试模式下保持安静
 	if gin.Mode() != gin.TestMode {
 		fmt.Printf("%+v", err) // 打印到标准输出，方便查错
-	}
-
-	mErr := micErr.Parse(err.Error())
-	if mErr.GetCode() > 0 {
-		err = WrapCusErr(ErrCode(mErr.GetCode()), err, mErr.GetDetail())
 	}
 
 	ce, ok := IsCusError(err)
