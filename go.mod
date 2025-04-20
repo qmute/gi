@@ -8,7 +8,7 @@ toolchain go1.24.2
 require (
 	github.com/gin-contrib/pprof v1.5.3
 	github.com/gin-contrib/requestid v1.0.5
-	github.com/gin-contrib/sessions v1.0.3
+	github.com/gin-contrib/sessions v1.0.2
 	github.com/gin-contrib/static v1.1.5
 	github.com/gin-gonic/gin v1.10.0
 	github.com/go-playground/locales v0.14.1
