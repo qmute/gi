@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/cockroachdb/errors"
 	"github.com/gin-gonic/gin"
-	"github.com/pkg/errors"
 	"github.com/quexer/utee"
 	log "github.com/sirupsen/logrus"
 	"gorm.io/gorm"

@@ -7,8 +7,8 @@ import (
 	"net/url"
 	"strings"
 
+	"github.com/cockroachdb/errors"
 	"github.com/gin-gonic/gin"
-	"github.com/pkg/errors"
 	"github.com/samber/lo"
 	"github.com/sirupsen/logrus"
 )
